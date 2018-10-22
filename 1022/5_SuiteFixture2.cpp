@@ -26,13 +26,32 @@ public:
 //------------------------------------------------
 #include "gtest/gtest.h"
 
-#if 1
-// 픽스쳐 설치 / 해체 작업이 느린 작업인 경우, 테스트 함수를 추가할 때마다
-// 전체적인 테스트의 시간이 계속 느려지는 문제가 발생한다.
-// => Slow Test Problem
-//  : 테스트가 너무 느려서, 개발자들이 SUT가 변경되어도 테스트를
-//    수행하지 않는다.
-//    (테스트를 수행하는 개발자의 생산성을 떨어뜨린다.)
+#if 0
+TerminalTest::SetUpTestCase();
+TerminalTest()
+terminalTest->SetUp();
+terminalTest->loginTest();
+terminalTest->TearDown();
+~TerminalTest()
+
+TerminalTest()
+terminalTest->SetUp();
+terminalTest->logoutTest();
+terminalTest->TearDown();
+~TerminalTest()
+TerminalTest::TearDownTestCase();
+#endif
+
+// 문제점?
+//  : 신선한 픽스쳐 전략 -> 공유 픽스쳐 전략으로 변경된다.
+//    모든 테스트가 더 이상 독립적이지 않다.
+//    => 잘못된 테스트가 이후 테스트에 영향을 미칠 수 있다.  
+//     : [변덕 스러운 테스트]의 문제가 발생할 수 있다.
+//      "공유 픽스쳐의 상태에 따라서 테스트의 결과가 변한다."
+//
+// 1. 가독성
+// 2. 유지보수성
+// 3. 신뢰성
 
 class TerminalTest : public ::testing::Test
 {
@@ -59,10 +78,12 @@ protected:
 	// @Override
 	virtual void SetUp() override 
 	{
+		printf("SetUp()\n");
 	}
 
 	virtual void TearDown() override
 	{	
+		printf("TearDown()\n");
 	}
 };
 
@@ -72,6 +93,7 @@ Terminal* TerminalTest::term = nullptr;
 
 TEST_F(TerminalTest, loginTest)
 {
+	printf("  loginTest()\n");
 	term->login(ID, PASSWORD);
 
 	ASSERT_TRUE(term->isLogin());
@@ -79,6 +101,7 @@ TEST_F(TerminalTest, loginTest)
 
 TEST_F(TerminalTest, logoutTest)
 {
+	printf("  logoutTest()\n");
 	term->login(ID, PASSWORD);
 	term->logout();
 
@@ -88,7 +111,6 @@ TEST_F(TerminalTest, logoutTest)
 TEST_F(TerminalTest, foo) {}
 TEST_F(TerminalTest, goo) {}
 
-#endif
 #if 0
 class TerminalTest : public ::testing::Test
 {
