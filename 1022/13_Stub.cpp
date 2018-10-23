@@ -34,12 +34,16 @@ public:
 
 
 	void move(int x, int y) { 
-		// ...
-		conn->move(x, y);
+		try {
+			conn->move(x, y);
+		} catch (IOException e) {
+			// SUT 
+		}
 	}
 
 	void attack() {
 		conn->attack();
+		// SUT
 	}
 };
 
